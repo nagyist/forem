@@ -273,6 +273,49 @@ RSpec.describe Moderator::ManageActivityAndRoles, type: :service do
     end
   end
 
+  describe "confirms flag reactions when adding the spam role" do
+    let(:spam_user) { create(:user) }
+    let(:spam_article) { create(:article, user: spam_user) }
+    let!(:flag) do
+      create(:reaction, category: "vomit", status: "valid", reactable: spam_article, user: admin)
+    end
+
+    it "schedules ConfirmFlagReactionsWorker" do
+      sidekiq_assert_enqueued_with(
+        job: Users::ConfirmFlagReactionsWorker,
+        args: [spam_user.id],
+      ) do
+        manage_roles_for(spam_user, user_status: "Spam")
+      end
+    end
+
+    it "calls ConfirmFlagReactionsWorker" do
+      allow(Users::ConfirmFlagReactions).to receive(:call)
+      sidekiq_perform_enqueued_jobs do
+        manage_roles_for(spam_user, user_status: "Spam")
+      end
+      expect(Users::ConfirmFlagReactions).to have_received(:call).with(spam_user)
+    end
+
+    it "actually confirms the flag" do
+      sidekiq_perform_enqueued_jobs do
+        manage_roles_for(spam_user, user_status: "Spam")
+      end
+      expect(flag.reload.status).to eq("confirmed")
+    end
+  end
+
+  describe "busts user profile header cache when adding the spam role" do
+    it "touches profile" do
+      spam_user = create(:user)
+      profile = instance_double(Profile)
+      allow(spam_user).to receive(:profile).and_return(profile)
+      allow(profile).to receive(:touch)
+      manage_roles_for(spam_user, user_status: "Spam")
+      expect(profile).to have_received(:touch)
+    end
+  end
+
   describe "removes notifications when adding the spam role" do
     let(:nice_article) { create(:article, user: user) }
     let(:spam_user) { create(:user) }

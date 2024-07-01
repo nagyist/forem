@@ -221,6 +221,9 @@ fr:
           not_verified:
             subtitle: Email not verified
             desc: "%{user}'s email hasn't been verified yet."
+          not_confirmed:
+            subtitle: E-mail non confirmé
+            desc: "L'e-mail de %{user} n'a pas encore été confirmé."
           verify: Verify email address
           verified_html: Last verified on %{time}
           reverify: Reverify
@@ -322,7 +325,7 @@ fr:
             icon: Mod
             desc: "Add a tag that this member can moderate. "
             remove: "Remove tag:"
-            notice_html: Adding tags for moderation is currently only possible through a particular %{tag_page}, by providing the username (%{username}).
+            notice_html: Adding tags for moderation is also possible through a particular %{tag_page}, by providing the username (%{username}).
             tag_page: tag's page
         priviliged_actions:
           description: The user flags affect the scores of articles and comments. Each valid or open user flag further reduces the score of the article and comment.

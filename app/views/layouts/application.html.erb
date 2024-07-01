@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <% if user_signed_in? && current_page?(root_path) %>
+      <link rel="prefetch" href="/stories/feed/?page=1">
+      <link rel="prefetch" href="/billboards/feed_first">
+      <link rel="prefetch" href="/billboards/feed_second">
+      <link rel="prefetch" href="/billboards/feed_third">
+      <link rel="prefetch" href="/sidebars/home">
+    <% end %>
     <meta charset="utf-8">
     <% title = yield(:title) %>
     <title><%= title || community_name.to_s %></title>
@@ -59,6 +66,9 @@
         data-ga-tracking="<%= j(Settings::General.ga_tracking_id) %>"
         data-cookie-banner-user-context="<%= j(Settings::General.cookie_banner_user_context) %>"
         data-cookie-banner-platform-context="<%= j(Settings::General.coolie_banner_platform_context) %>"
+        data-algolia-id="<%= j(Settings::General.algolia_application_id) if feature_flag_enabled?(:algolia_frontend) %>"
+        data-algolia-search-key="<%= j(Settings::General.algolia_search_only_api_key) if feature_flag_enabled?(:algolia_frontend) %>"
+        data-algolia-display="<%= j(Settings::General.display_algolia_branding) %>"
         data-ga4-tracking-id="<%= j(Settings::General.ga_analytics_4_id) %>">
         <%# Repeat of stylesheets in <head> to fix rendering glitch: https://github.com/forem/forem/issues/12377 %>
         <%= render "layouts/styles", qualifier: "secondary" %>

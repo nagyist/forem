@@ -79,6 +79,8 @@ module Moderator
         remove_privileges
         remove_notifications
         resolve_spam_reports
+        confirm_flag_reactions
+        user.profile.touch
       when "Super Moderator"
         assign_elevated_role_to_user(user, :super_moderator)
         TagModerators::AddTrustedRole.call(user)
@@ -164,6 +166,10 @@ module Moderator
 
     def resolve_spam_reports
       Users::ResolveSpamReportsWorker.perform_async(user.id)
+    end
+
+    def confirm_flag_reactions
+      Users::ConfirmFlagReactionsWorker.perform_async(user.id)
     end
   end
 end
